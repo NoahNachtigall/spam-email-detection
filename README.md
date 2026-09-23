@@ -2,21 +2,6 @@
 
 A small Python script that checks unread emails in Gmail, classifies them as spam or not spam, and prints the result with confidence.
 
-## What was wrong
-
-The app was trying to train a model from `spam.csv`, but that file was not a real dataset. It contained a placeholder page:
-
-```
-404: Not Found
-```
-
-That made the training data empty, which caused this crash:
-
-```
-ValueError: With n_samples=0, test_size=0.2 ... the resulting train set will be empty.
-```
-
-I fixed this by validating the CSV and falling back to a built-in sample dataset when the file is missing or invalid.
 
 ## Setup
 
