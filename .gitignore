@@ -1,2 +1,8 @@
 config.py
 venv/
+.venv/
+credentials.enc
+spam_model.joblib
+vectorizer.joblib
+__pycache__/
+.pytest_cache/

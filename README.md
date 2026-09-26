@@ -1,49 +1,54 @@
-# Spam Filter Email
+# Gmail Spam Filter
 
-A small Python script that checks unread emails in Gmail, classifies them as spam or not spam, and prints the result with confidence.
+A command-line spam classifier that scans unread Gmail messages and reports whether each looks like spam. It can optionally delete messages classified as spam.
 
+## Requirements
 
-## Setup
+- Python 3.10 or newer
+- A Gmail account with IMAP enabled
+- Google 2-Step Verification and a Gmail App Password
+- An operating-system keyring service (for example, GNOME Keyring or KWallet on Linux)
 
-1. Open `config.py` and replace the Gmail values with your own mail account details.
-2. Enable 2-Step Verification on your Google account.
-3. Generate a Gmail App Password:
-   - Go to Google Account > Security
-   - Under "Signing in to Google", enable 2-Step Verification
-   - Then open "App passwords"
-   - Generate a new app password for "Mail"
-   - Copy the 16-character password and paste it into `config.py` without spaces
-4. Activate the project virtual environment:
+Use an App Password, not your normal Google password. Google only offers App Passwords for accounts that meet its security requirements; work or school accounts may have this feature disabled by an administrator.
 
-```bash
-cd /home/luca/programming/python/spam-filter-email
-source venv/bin/activate
-```
+## Install
 
-5. Install any missing dependencies:
+From this directory, create and activate a virtual environment, then install the dependencies:
 
 ```bash
-pip install joblib pandas scikit-learn
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
-## Run it
+On Windows, activate the environment with `.venv\Scripts\activate` instead.
+
+## Run
 
 ```bash
 python main.py
 ```
 
-If you use the project venv directly, run:
+On the first run, enter your Gmail address and App Password when prompted. The password prompt does not display typed characters. The credentials are encrypted in `credentials.enc`; the encryption key is stored separately in your operating-system keyring. Later runs decrypt the saved credentials automatically.
+
+If the keyring is unavailable or locked, unlock/configure it and run the program again. Do not replace keyring storage with a key saved beside the encrypted file. To switch accounts, remove `credentials.enc` and run the program again. Removing that file does not revoke the Google App Password.
+
+## What it does
+
+- Scans unread messages in the Gmail inbox over IMAP.
+- Trains a Naive Bayes text classifier from `spam.csv` on the first run and saves the model locally.
+- Uses a small built-in sample dataset if `spam.csv` is missing, invalid, or does not contain both spam and ham examples. That fallback is only for trying the program; a real training dataset will classify better.
+- Asks before deleting messages it classified as spam.
+
+The classifier is a basic demonstration, not a reliable security filter. Review messages before deleting them.
+
+## Tests
 
 ```bash
-./venv/bin/python main.py
+python -m pip install pytest
+python -m pytest
 ```
 
-## Notes
+## Credential safety
 
-- The script looks for unread emails in the Gmail Inbox.
-- It uses Gmail IMAP and needs an app password for the account.
-- If `spam.csv` is missing or broken, the script now falls back to a built-in sample dataset so it does not crash.
-
-## Important
-
-Do not commit your real Gmail credentials. Keep them local in `config.py` and avoid pushing them to GitHub.
+Keep `credentials.enc` and your operating-system account private. The encrypted file is ignored by Git, and the encryption key is kept in the OS keyring. Anyone with access to both the encrypted file and your unlocked keyring can recover the credentials. Revoke the App Password in your Google Account if it was exposed or you no longer use it.
